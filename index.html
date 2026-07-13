@@ -2,97 +2,94 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz de Bioquímica - Modo Pro</title>
+    <title>Quiz Bioquímica - Modo Estudo Definitivo</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; text-align: center; background-color: #f0f2f5; }
-        #quiz-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .btn { display: block; width: 100%; margin: 10px 0; padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 16px; background: white; }
-        .btn:hover { background: #f0f0f0; }
+        body { font-family: 'Segoe UI', sans-serif; max-width: 700px; margin: 30px auto; padding: 20px; background-color: #f4f7f6; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn { display: block; width: 100%; margin: 8px 0; padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; background: white; text-align: left; transition: 0.2s; }
+        .btn:hover { background: #eef; }
         .correto { background-color: #4CAF50 !important; color: white; border-color: #3e8e41; }
         .errado { background-color: #f44336 !important; color: white; border-color: #d32f2f; }
+        #explicacao { margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; display: none; border-left: 5px solid #2196F3; }
+        #proximo-btn { margin-top: 20px; padding: 12px 25px; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; display: none; width: 100%; font-size: 16px; font-weight: bold; }
         #progress { font-weight: bold; margin-bottom: 20px; color: #555; }
     </style>
 </head>
 <body>
 
-<div id="quiz-box">
+<div class="card" id="quiz-box">
     <div id="progress">Carregando...</div>
     <h2 id="enunciado">Preparando questões...</h2>
     <div id="opcoes"></div>
+    <div id="explicacao"></div>
+    <button id="proximo-btn" onclick="proximaPergunta()">Próxima Pergunta →</button>
 </div>
 
 <script>
     const questoesOriginais = [
-        {"id": 1, "enunciado": "Em tecidos com elevada necessidade de NADPH mas pouca ribose-5-P a fase não-oxidativa permite:", "opcoes": ["Formar lactato", "Gerar FADH2", "Reciclar acucares-fosfato em intermiediarios glicolíticos", "Sintetizar colesterol", "Sintetizar ATP extra"], "resposta_correta": 2},
-        {"id": 2, "enunciado": "Numa pessoa diagnosticada com beri beri existe um défice de tiamina e acumulo de piruvato e lactato. Qual complexo enzimático encontra se deficiente no metabolismo energético :", "opcoes": ["Complexo piruvato desidrogenase", "Succinato Desidrogenase", "Fumarato Desidrogenase", "Isomerase do Citrato", "Malato desidrogenase"], "resposta_correta": 0},
-        {"id": 3, "enunciado": "Numa reação anaplerótica o que volta a formar intermediários do ciclo é:", "opcoes": ["Enolase", "Isomerase dos triglicerois", "Sintase do citrato", "Carboxilacao do piruvato (oxaloacetato)", "Fumarase"], "resposta_correta": 3},
-        {"id": 4, "enunciado": "No músculo, o azoto amonizado é transportado até o fígado preferencialmente sob a forma de:", "opcoes": ["Ureia", "Amoníaco Livre (NH4+)", "Ácido Úrico", "Creatinina", "Glutamina/Alanina"], "resposta_correta": 4},
-        {"id": 5, "enunciado": "Segundo a teoria quimiosmótica de Mitchell, a síntese de ATP é impulsionada por:", "opcoes": ["doação de eletrões ao NADH", "hidrólise do GTP", "fosforilação do substrato", "gradiente de protões na membrana mitocondrial", "ligação de O2 ao complexo I"], "resposta_correta": 3},
-        {"id": 6, "enunciado": "A enzima reguladora da via das pentoses fosfato é:", "opcoes": ["Desidrogenase da glicose-6-fosfato", "Desidrogenase da 6-fosfoglucanato", "Aldolase", "Transaldolase", "Transcetolase"], "resposta_correta": 0},
-        {"id": 7, "enunciado": "A síntese de novo das purinas inicia-se através de:", "opcoes": ["PRPP", "Orotato", "Carbamoil-fosfato", "Hexa...", "Ácido urico"], "resposta_correta": 0},
-        {"id": 8, "enunciado": "Qual é que é o produto final do metabolismo das purinas?", "opcoes": ["Ácido urico", "Ureia", "Amónia", "Alpha-alanina"], "resposta_correta": 0},
-        {"id": 9, "enunciado": "Um aminoácido em que o esqueleto de carbono origina apenas acetil-coA/acetoacetil-coA é classificado como:", "opcoes": ["Essencial", "Aromático", "Glicogenicos", "Cetogenicos", "Ramificado"], "resposta_correta": 3},
-        {"id": 10, "enunciado": "Os esqueletos de carbono da fenilalanina e tirosina são convertidos a fumarato e acetoacetato. Estes aminoácidos são:", "opcoes": ["Glicogenicos", "Cetogenicos", "Glicogenicos e cetogenicos", "Essenciais", "Nem um nem o outro"], "resposta_correta": 2},
-        {"id": 11, "enunciado": "Em jejum prolongado para a manutenção da glicemia qual o principal substrato gliconeogenico derivado da proteolise muscular?", "opcoes": ["Corpos cetonicos", "Acetil-coA", "Leucina", "Palmitato", "Alanina"], "resposta_correta": 4},
-        {"id": 12, "enunciado": "Qual é o substrato que se junta ao oxalacetato para iniciar o ciclo?", "opcoes": ["Acetil-coA", "Citrato", "Malato", "Piruvato", "Succinil-coA"], "resposta_correta": 0},
-        {"id": 13, "enunciado": "Enzima exclusiva da gliconeogénese:", "opcoes": ["frutose-1,6-bisfosfatase", "aldolase", "enolase", "isomerase de fosfohexose"], "resposta_correta": 0},
-        {"id": 14, "enunciado": "O glicogénio hepático, ao contrário do muscular, contribui diretamente para a glicémia, porque o fígado possui:", "opcoes": ["Fosfo-glicomutase", "Glicogénio-fosforilase", "Glicose-6-fosfatase", "Hexocinase", "Glucocinase"], "resposta_correta": 2},
-        {"id": 15, "enunciado": "Na reação da desidrogenase do gliceraldeído-3-fosfato, o arsenato substitui o fosfato inorgânico, qual é o efeito?", "opcoes": ["conversão em lactato", "paragem total da via", "Desfosforilação ao nível do substrato (perda de ATP)", "aumento da produção de ATP"], "resposta_correta": 2},
-        {"id": 16, "enunciado": "Qual é a enzima reguladora da etapa limitante da glicólise?", "opcoes": ["Aldolase", "Enolase", "Hexocinase", "Piruvato-cinase", "fosfofrutocinase-1"], "resposta_correta": 4},
-        {"id": 17, "enunciado": "Rendimento 1 ciclo krebs:", "opcoes": ["3 NADH + 1 FADH2 + 1 GTP"], "resposta_correta": 0},
-        {"id": 18, "enunciado": "Rendimento 1 volta beta-oxidação:", "opcoes": ["1 NADH + 1 FADH2 + 1 acetil-CoA"], "resposta_correta": 0},
-        {"id": 19, "enunciado": "Na fase oxidativa da via dos pentoses fosfato, qual a principal molécula sintetizada?", "opcoes": ["lactato", "ATP", "NADPH", "FADH"], "resposta_correta": 2},
-        {"id": 20, "enunciado": "A enzima reguladora da lipogénese é?", "opcoes": ["Redutase da HMG-CoA", "Carboxílase do Acetil-CoA", "Líase do Citrato", "Tiolase", "Síntase dos Ácidos Gordos"], "resposta_correta": 1},
-        {"id": 21, "enunciado": "ribose-5-fosfato forma principalmente:", "opcoes": ["nucleotidos", "atp"], "resposta_correta": 0},
-        {"id": 22, "enunciado": "A lipase sensivel a hormona (HSL) é ativada por:", "opcoes": ["Glicagina/adrenalina (atraves do AMPc)", "Insulina", "Malonil coA", "Citrato", "Frutose 2,6 Bp"], "resposta_correta": 0},
-        {"id": 23, "enunciado": "A reação de transformação de proprionil coA em succinil coA é catalisada com a ajuda da vitamina:", "opcoes": ["B12", "B1", "B6", "C", "K"], "resposta_correta": 0},
-        {"id": 24, "enunciado": "Qual dos seguintes substratos não é gluconeogenico:", "opcoes": ["Lactato", "Alanina", "Acetil coA", "Glicerol", "Glutamina"], "resposta_correta": 2},
-        {"id": 25, "enunciado": "Qual a ação da insulina ao nível da glicogenese no fígado:", "opcoes": ["ativação da síntase de glicogénio", "ativacao da fosforilase de glicogenio", "ativacao da pkA", "aumenta do AMPc", "inibição da sintase do glicogénio"], "resposta_correta": 0},
-        {"id": 26, "enunciado": "A reação de desidrogenase oxidativa do glutamato liberta:", "opcoes": ["Ureia", "Glutamina", "Amonio", "Alanina", "Aspartato"], "resposta_correta": 2},
-        {"id": 27, "enunciado": "A enzima reguladora (etapa limitante) da síntese de colesterol:", "opcoes": ["HMG-CoA redutase", "HMG-CoA liase"], "resposta_correta": 0},
-        {"id": 28, "enunciado": "Homem com anemia hematose toma primaquina e suspeita de falta de G6PD:", "opcoes": ["Tem demasiado NADPH", "Pouco ATP", "Incapacidade de restaurar glutationa, causando oxidação eritrocitária", "Falta de cinase de piruvato", "A doença pela toxina direta de primaquina"], "resposta_correta": 2},
-        {"id": 29, "enunciado": "O eritrócito maduro depende inteiramente da glicólise para a obtenção de ATP pois:", "opcoes": ["Não possui mitocondria", "Não capta glicose", "Não tem NAD+"], "resposta_correta": 0},
-        {"id": 30, "enunciado": "NADPH é fundamental para:", "opcoes": ["Biossintese redutora e defesa antioxidante", "sintese de atp", "glicolise", "sintese de ureia", "ciclo de krebs"], "resposta_correta": 0},
-        {"id": 31, "enunciado": "Anemia megaloblastica vitaminas:", "opcoes": ["B12/B9", "Ferro", "Vitamina K"], "resposta_correta": 0},
-        {"id": 32, "enunciado": "As transaminases usam como coenzima...", "opcoes": ["Vitamina B1", "Vitamina B6", "Vitamina B7"], "resposta_correta": 1},
-        {"id": 33, "enunciado": "Precursor comum do colesterol, corpos cetónicos e ácidos gordos.", "opcoes": ["Acetil-CoA", "Malonil-CoA", "Piruvato"], "resposta_correta": 0},
-        {"id": 34, "enunciado": "Enzima reguladora da entrada de ácidos gordos na verdade mitocôndria.", "opcoes": ["Carnitina Palmitoil Transferase 1", "LCAT"], "resposta_correta": 0},
-        {"id": 35, "enunciado": "O NADH produzido nesta via é fundamental para:", "opcoes": ["Biossíntese oxidativa e efeito antioxidante", "Glicolise", "Ciclo de krebs", "Síntese de ATP", "Síntese de ureia"], "resposta_correta": 3},
-        {"id": 36, "enunciado": "A remoção do grupo a-amina dos aminoácidos é feita sobretudo por:", "opcoes": ["Transaminação", "Metilação", "Oxidação", "Descarboxilação"], "resposta_correta": 0},
-        {"id": 37, "enunciado": "A PFK-1 é alostericamente ativa por:", "opcoes": ["Frutose-2,6-bifosfato (F2,6BP) e AMPc", "Glicagina", "ATP", "Piruvato"], "resposta_correta": 0},
-        {"id": 38, "enunciado": "A transcetolase utiliza qual destas vitaminas como cofator:", "opcoes": ["B1 (TPP)", "B6", "K", "B3", "B12"], "resposta_correta": 0},
-        {"id": 39, "enunciado": "A carboxilase do piruvato tem como coenzima derivado de vitamina:", "opcoes": ["Biotina b7", "B6", "B12", "B1"], "resposta_correta": 0},
-        {"id": 40, "enunciado": "A lipogénese e a lipolise nao podem ocorrer simultaneamente porque o malonil-CoA:", "opcoes": ["inibe a ACC", "inibe a sintase de lipidos", "inibe a CPT-1", "permite a beta-oxidação"], "resposta_correta": 2},
-        {"id": 41, "enunciado": "Qual é o produto final da glicolise aerobia?", "opcoes": ["Piruvato", "Acetil-coA", "Lactato", "Oxaloacetato"], "resposta_correta": 0},
-        {"id": 42, "enunciado": "A glicagina/epinefrina sobre o glicogenio hepatico...", "opcoes": ["inibe a síntese e ativa a degradação", "ativa a síntese e inibe a degradação", "ativa ambas", "Inibe ambas"], "resposta_correta": 0},
-        {"id": 43, "enunciado": "Qual é a primeira enzima da via do carbomoil-fosfato", "opcoes": ["Ornitina transcarmaboilase", "Carbamoil-fosfato sintetase I (CPS I)"], "resposta_correta": 1},
-        {"id": 44, "enunciado": "A glicogenólise (degradação do glicogénio) envolve que enzima:", "opcoes": ["fosforilase do glicogenio", "sintase do glicogenio", "enzima ramificante", "glicocinase", "pirofosforilase da UDPgIc"], "resposta_correta": 0},
-        {"id": 45, "enunciado": "De onde vêm as duas moléculas de azoto no final do ciclo da ureia", "opcoes": ["NH4+ e aspartato", "Glutamina e alanina", "NH4+ e glutamato", "nh4+ e ornitina"], "resposta_correta": 0},
-        {"id": 46, "enunciado": "No metabolismo lipídico, o que é que a insulina promove:", "opcoes": ["estimula a lipolise e inibe a lipogenese", "estimula a lipogenese e inibe a lipolise", "estimula a beta oxidacao", "estimula a cetogenese"], "resposta_correta": 1}
+        {"id": 1, "enunciado": "Em tecidos com elevada necessidade de NADPH mas pouca ribose-5-P a fase não-oxidativa permite:", "opcoes": ["Formar lactato", "Gerar FADH2", "Reciclar acucares-fosfato em intermiediarios glicolíticos", "Sintetizar colesterol", "Sintetizar ATP extra"], "resposta_correta": 2, "explicacao": "A fase não-oxidativa da via das pentoses fosfato interconverte açúcares em intermediários glicolíticos (como frutose-6-P e gliceraldeído-3-P), permitindo o metabolismo energético."},
+        {"id": 2, "enunciado": "Numa pessoa diagnosticada com beri beri existe um défice de tiamina e acumulo de piruvato e lactato. Qual complexo enzimático encontra se deficiente no metabolismo energético:", "opcoes": ["Complexo piruvato desidrogenase", "Succinato Desidrogenase", "Fumarato Desidrogenase", "Isomerase do Citrato", "Malato desidrogenase"], "resposta_correta": 0, "explicacao": "O complexo PDH necessita de TPP (pirofosfato de tiamina) como coenzima. A falta de tiamina inibe a conversão de piruvato em acetil-CoA, levando à sua acumulação."},
+        {"id": 3, "enunciado": "Numa reação anaplerótica o que volta a formar intermediários do ciclo é:", "opcoes": ["Enolase", "Isomerase dos triglicerois", "Sintase do citrato", "Carboxilacao do piruvato (oxaloacetato)", "Fumarase"], "resposta_correta": 3, "explicacao": "A carboxilação do piruvato para formar oxaloacetato é uma via anaplerótica clássica que repõe intermediários consumidos no Ciclo de Krebs."},
+        {"id": 4, "enunciado": "No músculo, o azoto amonizado é transportado até o fígado preferencialmente sob a forma de:", "opcoes": ["Ureia", "Amoníaco Livre (NH4+)", "Ácido Úrico", "Creatinina", "Glutamina/Alanina"], "resposta_correta": 4, "explicacao": "O ciclo glicose-alanina permite o transporte seguro de azoto do músculo para o fígado na forma de Alanina."},
+        {"id": 5, "enunciado": "Segundo a teoria quimiosmótica de Mitchell, a síntese de ATP é impulsionada por:", "opcoes": ["doação de eletrões ao NADH", "hidrólise do GTP", "fosforilação do substrato", "gradiente de protões na membrana mitocondrial", "ligação de O2 ao complexo I"], "resposta_correta": 3, "explicacao": "O gradiente eletroquímico de protões (força protão-motriz) gerado pela cadeia transportadora é usado pela ATP sintase para fosforilar ADP."},
+        {"id": 6, "enunciado": "A enzima reguladora da via das pentoses fosfato é:", "opcoes": ["Desidrogenase da glicose-6-fosfato", "Desidrogenase da 6-fosfoglucanato", "Aldolase", "Transaldolase", "Transcetolase"], "resposta_correta": 0, "explicacao": "A G6PD (Glicose-6-fosfato desidrogenase) é o ponto de controlo principal, sendo inibida pelo NADPH."},
+        {"id": 7, "enunciado": "A síntese de novo das purinas inicia-se através de:", "opcoes": ["PRPP", "Orotato", "Carbamoil-fosfato", "Hexa...", "Ácido urico"], "resposta_correta": 0, "explicacao": "A via inicia-se com a ativação da ribose-5-P em PRPP, ao qual é adicionado um grupo amino."},
+        {"id": 8, "enunciado": "Qual é que é o produto final do metabolismo das purinas?", "opcoes": ["Ácido urico", "Ureia", "Amónia", "Alpha-alanina"], "resposta_correta": 0, "explicacao": "Nos humanos, a degradação de purinas termina na formação de ácido úrico."},
+        {"id": 9, "enunciado": "Um aminoácido em que o esqueleto de carbono origina apenas acetil-coA/acetoacetil-coA é classificado como:", "opcoes": ["Essencial", "Aromático", "Glicogenicos", "Cetogenicos", "Ramificado"], "resposta_correta": 3, "explicacao": "Aminoácidos que se degradam exclusivamente em corpos cetónicos (acetil-CoA/acetoacetil-CoA) são chamados estritamente cetogénicos."},
+        {"id": 10, "enunciado": "Os esqueletos de carbono da fenilalanina e tirosina são convertidos a fumarato e acetoacetato. Estes aminoácidos são:", "opcoes": ["Glicogenicos", "Cetogenicos", "Glicogenicos e cetogenicos", "Essenciais", "Nem um nem o outro"], "resposta_correta": 2, "explicacao": "Por produzirem fumarato (precursor gliconeogénico) e acetoacetato (corpo cetónico), são classificados como glicogénicos e cetogénicos."},
+        {"id": 11, "enunciado": "Em jejum prolongado para a manutenção da glicemia qual o principal substrato gliconeogenico derivado da proteolise muscular?", "opcoes": ["Corpos cetonicos", "Acetil-coA", "Leucina", "Palmitato", "Alanina"], "resposta_correta": 4, "explicacao": "A alanina é o principal aminoácido libertado pelo músculo em jejum para ser convertido em glicose pelo fígado."},
+        {"id": 12, "enunciado": "Qual é o substrato que se junta ao oxalacetato para iniciar o ciclo?", "opcoes": ["Acetil-coA", "Citrato", "Malato", "Piruvato", "Succinil-coA"], "resposta_correta": 0, "explicacao": "A citrato sintase condensa Acetil-CoA (2C) com Oxalacetato (4C) para formar Citrato (6C)."},
+        {"id": 13, "enunciado": "Enzima exclusiva da gliconeogénese:", "opcoes": ["frutose-1,6-bisfosfatase", "aldolase", "enolase", "isomerase de fosfohexose"], "resposta_correta": 0, "explicacao": "Esta enzima reverte o passo irreversível da glicólise (PFK-1)."},
+        {"id": 14, "enunciado": "O glicogénio hepático, ao contrário do muscular, contribui diretamente para a glicémia, porque o fígado possui:", "opcoes": ["Fosfo-glicomutase", "Glicogénio-fosforilase", "Glicose-6-fosfatase", "Hexocinase", "Glucocinase"], "resposta_correta": 2, "explicacao": "A G6Pase permite a desfosforilação da glicose, permitindo a sua saída da célula para a corrente sanguínea."},
+        {"id": 15, "enunciado": "Na reação da desidrogenase do gliceraldeído-3-fosfato, o arsenato substitui o fosfato inorgânico, qual é o efeito?", "opcoes": ["conversão em lactato", "paragem total da via", "Desfosforilação ao nível do substrato (perda de ATP)", "aumento da produção de ATP"], "resposta_correta": 2, "explicacao": "O arsenato forma um intermediário instável que hidrolisa espontaneamente, evitando a formação de 1,3-BPG e a subsequente produção de ATP."},
+        {"id": 16, "enunciado": "Qual é a enzima reguladora da etapa limitante da glicólise?", "opcoes": ["Aldolase", "Enolase", "Hexocinase", "Piruvato-cinase", "fosfofrutocinase-1"], "resposta_correta": 4, "explicacao": "A PFK-1 catalisa o passo 'committed' (comprometido) da via glicolítica."},
+        {"id": 17, "enunciado": "Rendimento 1 ciclo krebs:", "opcoes": ["3 NADH + 1 FADH2 + 1 GTP"], "resposta_correta": 0, "explicacao": "Por cada volta do ciclo, produzem-se 3 NADH, 1 FADH2 e 1 GTP (ou ATP)."},
+        {"id": 18, "enunciado": "Rendimento 1 volta beta-oxidação:", "opcoes": ["1 NADH + 1 FADH2 + 1 acetil-CoA"], "resposta_correta": 0, "explicacao": "Cada ciclo de beta-oxidação encurta a cadeia em 2 carbonos, gerando 1 NADH, 1 FADH2 e 1 Acetil-CoA."},
+        {"id": 19, "enunciado": "Na fase oxidativa da via dos pentoses fosfato, qual a principal molécula sintetizada?", "opcoes": ["lactato", "ATP", "NADPH", "FADH"], "resposta_correta": 2, "explicacao": "A função primária da fase oxidativa é fornecer poder redutor na forma de NADPH para biossínteses e defesa antioxidante."},
+        {"id": 20, "enunciado": "A enzima reguladora da lipogénese é?", "opcoes": ["Redutase da HMG-CoA", "Carboxílase do Acetil-CoA", "Líase do Citrato", "Tiolase", "Síntase dos Ácidos Gordos"], "resposta_correta": 1, "explicacao": "A Acetil-CoA carboxilase (ACC) catalisa a formação de malonil-CoA, o passo limitante da síntese de ácidos gordos."},
+        {"id": 21, "enunciado": "ribose-5-fosfato forma principalmente:", "opcoes": ["nucleotidos", "atp"], "resposta_correta": 0, "explicacao": "A R5P é o açúcar base essencial para a síntese de nucleótidos (DNA/RNA)."},
+        {"id": 22, "enunciado": "A lipase sensivel a hormona (HSL) é ativada por:", "opcoes": ["Glicagina/adrenalina (atraves do AMPc)", "Insulina", "Malonil coA", "Citrato", "Frutose 2,6 Bp"], "resposta_correta": 0, "explicacao": "O glucagon e a adrenalina ativam a PKA, que fosforila e ativa a HSL para iniciar a lipólise."},
+        {"id": 23, "enunciado": "A reação de transformação de proprionil coA em succinil coA é catalisada com a ajuda da vitamina:", "opcoes": ["B12", "B1", "B6", "C", "K"], "resposta_correta": 0, "explicacao": "A metilmalonil-CoA mutase, que converte metilmalonil-CoA (derivado de propionil) em succinil-CoA, requer vitamina B12 (cobalamina)."},
+        {"id": 24, "enunciado": "Qual dos seguintes substratos não é gluconeogenico:", "opcoes": ["Lactato", "Alanina", "Acetil coA", "Glicerol", "Glutamina"], "resposta_correta": 2, "explicacao": "Animais não conseguem converter Acetil-CoA em piruvato, portanto, ele não serve como substrato para gliconeogénese."},
+        {"id": 25, "enunciado": "Qual a ação da insulina ao nível da glicogenese no fígado:", "opcoes": ["ativação da síntase de glicogénio", "ativacao da fosforilase de glicogenio", "ativacao da pkA", "aumenta do AMPc", "inibição da sintase do glicogénio"], "resposta_correta": 0, "explicacao": "A insulina estimula a fosfatase que desfosforila a glicogénio sintase, ativando-a."},
+        {"id": 26, "enunciado": "A reação de desidrogenase oxidativa do glutamato liberta:", "opcoes": ["Ureia", "Glutamina", "Amonio", "Alanina", "Aspartato"], "resposta_correta": 2, "explicacao": "A glutamato desidrogenase catalisa a desaminação oxidativa do glutamato, libertando iões amónio (NH4+)."},
+        {"id": 27, "enunciado": "A enzima reguladora (etapa limitante) da síntese de colesterol:", "opcoes": ["HMG-CoA redutase", "HMG-CoA liase"], "resposta_correta": 0, "explicacao": "A HMG-CoA redutase é o ponto de controlo chave na síntese de colesterol."},
+        {"id": 28, "enunciado": "Homem com anemia hematose toma primaquina e suspeita de falta de G6PD:", "opcoes": ["Tem demasiado NADPH", "Pouco ATP", "Incapacidade de restaurar glutationa, causando oxidação eritrocitária", "Falta de cinase de piruvato", "A doença pela toxina direta de primaquina"], "resposta_correta": 2, "explicacao": "A falta de G6PD reduz os níveis de NADPH, impedindo a regeneração de glutationa reduzida necessária para proteger o eritrócito contra stress oxidativo."},
+        {"id": 29, "enunciado": "O eritrócito maduro depende inteiramente da glicólise para a obtenção de ATP pois:", "opcoes": ["Não possui mitocondria", "Não capta glicose", "Não tem NAD+"], "resposta_correta": 0, "explicacao": "Como os eritrócitos não têm mitocôndrias, não conseguem realizar a fosforilação oxidativa, dependendo da glicólise anaeróbia."},
+        {"id": 30, "enunciado": "NADPH é fundamental para:", "opcoes": ["Biossintese redutora e defesa antioxidante", "sintese de atp", "glicolise", "sintese de ureia", "ciclo de krebs"], "resposta_correta": 0, "explicacao": "NADPH é o dador de eletrões para reações anabólicas (síntese de ácidos gordos, etc) e regeneração de antioxidantes."},
+        {"id": 31, "enunciado": "Anemia megaloblastica vitaminas:", "opcoes": ["B12/B9", "Ferro", "Vitamina K"], "resposta_correta": 0, "explicacao": "A deficiência de B12 (cobalamina) ou B9 (ácido fólico) prejudica a síntese de DNA, causando anemia megaloblástica."},
+        {"id": 32, "enunciado": "As transaminases usam como coenzima...", "opcoes": ["Vitamina B1", "Vitamina B6", "Vitamina B7"], "resposta_correta": 1, "explicacao": "O fosfato de piridoxal (derivado da Vitamina B6) é essencial para todas as reações de transaminação."},
+        {"id": 33, "enunciado": "Precursor comum do colesterol, corpos cetónicos e ácidos gordos.", "opcoes": ["Acetil-CoA", "Malonil-CoA", "Piruvato"], "resposta_correta": 0, "explicacao": "O Acetil-CoA é o ponto de partida metabólico para a síntese de ácidos gordos, colesterol e corpos cetónicos."},
+        {"id": 34, "enunciado": "Enzima reguladora da entrada de ácidos gordos na verdade mitocôndria.", "opcoes": ["Carnitina Palmitoil Transferase 1", "LCAT"], "resposta_correta": 0, "explicacao": "A CPT-1 é o passo limitante para a entrada de acil-CoA na matriz mitocondrial para beta-oxidação."},
+        {"id": 35, "enunciado": "O NADH produzido nesta via é fundamental para:", "opcoes": ["Biossíntese oxidativa e efeito antioxidante", "Glicolise", "Ciclo de krebs", "Síntese de ATP", "Síntese de ureia"], "resposta_correta": 3, "explicacao": "O NADH (e FADH2) produzido na oxidação de combustíveis alimenta a cadeia transportadora de eletrões para a síntese de ATP."},
+        {"id": 36, "enunciado": "A remoção do grupo a-amina dos aminoácidos é feita sobretudo por:", "opcoes": ["Transaminação", "Metilação", "Oxidação", "Descarboxilação"], "resposta_correta": 0, "explicacao": "A transaminação é o processo mais comum para canalizar o azoto dos aminoácidos para o glutamato."},
+        {"id": 37, "enunciado": "A PFK-1 é alostericamente ativa por:", "opcoes": ["Frutose-2,6-bifosfato (F2,6BP) e AMPc", "Glicagina", "ATP", "Piruvato"], "resposta_correta": 0, "explicacao": "A Frutose-2,6-bisfosfato é o ativador alostérico mais potente da PFK-1."},
+        {"id": 38, "enunciado": "A transcetolase utiliza qual destas vitaminas como cofator:", "opcoes": ["B1 (TPP)", "B6", "K", "B3", "B12"], "resposta_correta": 0, "explicacao": "A transcetolase requer TPP como coenzima para transferir unidades de dois carbonos na via das pentoses."},
+        {"id": 39, "enunciado": "A carboxilase do piruvato tem como coenzima derivado de vitamina:", "opcoes": ["Biotina b7", "B6", "B12", "B1"], "resposta_correta": 0, "explicacao": "Todas as reações de carboxilação dependentes de ATP utilizam biotina como transportador de CO2."},
+        {"id": 40, "enunciado": "A lipogénese e a lipolise nao podem ocorrer simultaneamente porque o malonil-CoA:", "opcoes": ["inibe a ACC", "inibe a sintase de lipidos", "inibe a CPT-1", "permite a beta-oxidação"], "resposta_correta": 2, "explicacao": "O malonil-CoA (intermediário da síntese) inibe a CPT-1, bloqueando a entrada de ácidos gordos na mitocôndria, impedindo a sua degradação."},
+        {"id": 41, "enunciado": "Qual é o produto final da glicolise aerobia?", "opcoes": ["Piruvato", "Acetil-coA", "Lactato", "Oxaloacetato"], "resposta_correta": 0, "explicacao": "A glicólise produz piruvato. Em condições aeróbias, este entra na mitocôndria para virar acetil-CoA."},
+        {"id": 42, "enunciado": "A glicagina/epinefrina sobre o glicogenio hepatico...", "opcoes": ["inibe a síntese e ativa a degradação", "ativa a síntese e inibe a degradação", "ativa ambas", "Inibe ambas"], "resposta_correta": 0, "explicacao": "Estas hormonas ativam a cascata de sinalização que promove a fosforilação (ativação) da glicogénio fosforilase e inativação da glicogénio sintase."},
+        {"id": 43, "enunciado": "Qual é a primeira enzima da via do carbomoil-fosfato", "opcoes": ["Ornitina transcarmaboilase", "Carbamoil-fosfato sintetase I (CPS I)"], "resposta_correta": 1, "explicacao": "A CPS I catalisa o passo inicial limitante do ciclo da ureia, fixando amónio e bicarbonato."},
+        {"id": 44, "enunciado": "A glicogenólise (degradação do glicogénio) envolve que enzima:", "opcoes": ["fosforilase do glicogenio", "sintase do glicogenio", "enzima ramificante", "glicocinase", "pirofosforilase da UDPgIc"], "resposta_correta": 0, "explicacao": "A glicogénio fosforilase catalisa a quebra das ligações alfa-1,4 do glicogénio."},
+        {"id": 45, "enunciado": "De onde vêm as duas moléculas de azoto no final do ciclo da ureia", "opcoes": ["NH4+ e aspartato", "Glutamina e alanina", "NH4+ e glutamato", "nh4+ e ornitina"], "resposta_correta": 0, "explicacao": "Um azoto provém do amónio livre (NH4+) e o outro do aspartato."},
+        {"id": 46, "enunciado": "No metabolismo lipídico, o que é que a insulina promove:", "opcoes": ["estimula a lipolise e inibe a lipogenese", "estimula a lipogenese e inibe a lipolise", "estimula a beta oxidacao", "estimula a cetogenese"], "resposta_correta": 1, "explicacao": "A insulina promove um estado anabólico, ativando a lipogénese e inibindo a lipólise (degradação)."}
     ];
 
     let questoes = [...questoesOriginais].sort(() => Math.random() - 0.5);
-    
-    // Aleatorizar opções mantendo a resposta correta
-    questoes.forEach(q => {
-        let opcs = q.opcoes.map((o, i) => ({txt: o, originalIndex: i}));
-        let corretaTxt = q.opcoes[q.resposta_correta];
-        opcs.sort(() => Math.random() - 0.5);
-        q.opcoes = opcs.map(o => o.txt);
-        q.resposta_correta = q.opcoes.indexOf(corretaTxt);
-    });
-
-    let atual = 0, pontuacao = 0;
+    let atual = 0, pontuacao = 0, historico = [];
 
     function carregarQuestao() {
         if (atual >= questoes.length) {
-            document.getElementById('quiz-box').innerHTML = `<h1>Quiz Finalizado!</h1><p>A tua pontuação final: <strong>${pontuacao}/${questoes.length}</strong></p><button class="btn" onclick="location.reload()">Jogar Novamente</button>`;
+            mostrarResumo();
             return;
         }
         
         let q = questoes[atual];
         document.getElementById('progress').innerText = `Questão ${atual + 1} de ${questoes.length}`;
         document.getElementById('enunciado').innerText = q.enunciado;
+        document.getElementById('explicacao').style.display = 'none';
+        document.getElementById('proximo-btn').style.display = 'none';
+        
         const divOpcoes = document.getElementById('opcoes');
         divOpcoes.innerHTML = '';
         
@@ -106,18 +103,38 @@
     }
 
     function verificar(escolha, btn) {
+        const q = questoes[atual];
         const btns = document.querySelectorAll('.btn');
         btns.forEach(b => b.style.pointerEvents = 'none');
         
-        if (escolha === questoes[atual].resposta_correta) {
+        let acertou = (escolha === q.resposta_correta);
+        historico.push({id: q.id, enunciado: q.enunciado, acertou: acertou});
+        
+        if (acertou) {
             btn.classList.add('correto');
             pontuacao++;
         } else {
             btn.classList.add('errado');
-            btns[questoes[atual].resposta_correta].classList.add('correto');
+            btns[q.resposta_correta].classList.add('correto');
         }
         
-        setTimeout(() => { atual++; carregarQuestao(); }, 1200);
+        document.getElementById('explicacao').innerHTML = `<strong>Justificação:</strong> ${q.explicacao}`;
+        document.getElementById('explicacao').style.display = 'block';
+        document.getElementById('proximo-btn').style.display = 'block';
+    }
+
+    function proximaPergunta() { 
+        atual++; 
+        carregarQuestao(); 
+    }
+
+    function mostrarResumo() {
+        let html = `<h1>Quiz Finalizado!</h1><p>Pontuação: <strong>${pontuacao}/${questoes.length}</strong></p><ul style="text-align:left;">`;
+        historico.forEach((h, i) => {
+            html += `<li>${h.acertou ? '✅' : '❌'} ${h.enunciado.substring(0, 50)}...</li>`;
+        });
+        html += `</ul><button class="btn" onclick="location.reload()">Reiniciar Quiz</button>`;
+        document.getElementById('quiz-box').innerHTML = html;
     }
 
     carregarQuestao();
